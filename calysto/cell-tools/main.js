@@ -221,8 +221,8 @@ define(["require"], function (require) {
     var add_toolbar_buttons = function () {
 	// string of first digit, "2" or "3" for now
 	var version = IPython.version.substring(0, 1);
-	IPython.toolbar.add_buttons_group([
-	    // select your icon from http://fortawesome.github.io/Font-Awesome/icons
+	Jupyter.toolbar.add_buttons_group([
+	    /* select your icon from http://fortawesome.github.io/Font-Awesome/icons
 	    {
 		'label'   : 'Toggle tabbed view on a code cell',
 		'icon'    : (version === "2") ? 'icon-folder-close-alt' : 'fa-folder', 
@@ -232,7 +232,17 @@ define(["require"], function (require) {
 		'label'   : 'Toggle two-column view on a code cell',
 		'icon'    : (version === "2") ? 'icon-columns' : 'fa-columns', 
 		'callback': toggle_columns
-	    }
+	    }*/
+            Jupyter.actions.register ({
+		help   : 'Toggle tabbed view on a code cell',
+		icon   : 'fa-folder',
+		handler : toggle_tabs
+            }, 'toggle_tabs'),
+            Jupyter.actions.register ({
+		help   : 'Toggle two-column view on a code cell',
+		icon   : 'fa-columns',
+		handler : toggle_columns
+            }, 'toggle_columns')
 	]);
     };
     

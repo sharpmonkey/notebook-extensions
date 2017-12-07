@@ -125,13 +125,18 @@ publish("/home/' + user + '/' + path + '/' + filename + '", "~/public_html/' + f
     
     var add_toolbar_buttons = function () {
 	var version = IPython.version.substring(0, 1);
-	IPython.toolbar.add_buttons_group([
-	    // select your icon from http://fortawesome.github.io/Font-Awesome/icons
+	Jupyter.toolbar.add_buttons_group([
+	    /* select your icon from http://fortawesome.github.io/Font-Awesome/icons
 	    {
 		'label'   : 'Publish this notebook',
 		'icon'    : (version === "2") ? 'icon-link' : 'fa-link',
 		'callback': publish_notebook
-	    }
+	    }*/
+            Jupyter.actions.register ({
+		help    : 'Publish this notebook',
+		icon    : 'fa-link',
+		handler : publish_notebook
+            }, 'publish')
 	]);
     };
     

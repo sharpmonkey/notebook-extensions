@@ -1243,33 +1243,58 @@ define(["require"], function (require) {
 
     var add_toolbar_buttons = function () {
 	var version = IPython.version.substring(0, 1);
-	IPython.toolbar.add_buttons_group([
+	Jupyter.toolbar.add_buttons_group([
 	    // select your icon from http://fortawesome.github.io/Font-Awesome/icons
-	    {
+	    /*{
 		'label'   : 'Move Section Up',
 		'icon'    : (version === "2") ? 'icon-level-up' : 'fa-level-up', 
 		'callback': move_section_up
-	    },
-	    {
+	    },*/
+            Jupyter.actions.register ({
+		help   : 'Move Section Up',
+		icon   : 'fa-level-up',
+		handler : move_section_up
+            }, 'move_up'),
+	    /*{
 		'label'   : 'Move Section Down',
 		'icon'    : (version === "2") ? 'icon-level-down' : 'fa-level-down', 
 		'callback': move_section_down
-	    },
-	    {
+	    },*/
+            Jupyter.actions.register ({
+		help   : 'Move Section Down',
+		icon   : 'fa-level-down',
+		handler : move_section_down
+            }, 'move_down'),
+	    /*{
 		'label'   : 'Number Sections',
 		'icon'    : (version === "2") ? 'icon-sort-by-order' : 'fa-sort-numeric-asc', 
 		'callback': section_label
-	    },
-	    {
+	    },*/
+            Jupyter.actions.register ({
+		help   : 'Number Sections',
+		icon   : 'fa-sort-numeric-asc',
+		handler : section_label
+            }, 'label_section'),
+	    /*{
 		'label'   : 'Generate Table of Contents',
 		'icon'    : (version === "2") ? 'icon-sort-by-attributes-alt' : 'fa-list', 
 		'callback': table_of_contents
-	    },
-	    {
+	    },*/
+            Jupyter.actions.register ({
+		help   : 'Generate Table of Contents',
+		icon   : 'fa-list',
+		handler : table_of_contents
+            }, 'toc'),
+	    /*{
 		'label'   : 'Generate References',
 		'icon'    : (version === "2") ? 'icon-book' : 'fa-book', 
 		'callback': generate_references
-	    }
+	    }*/
+            Jupyter.actions.register ({
+		help   : 'Generate References',
+		icon   : 'fa-book',
+		handler : generate_references
+            }, 'refs')
 	]);
     };
     

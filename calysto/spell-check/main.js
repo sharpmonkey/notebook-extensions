@@ -14,7 +14,10 @@ define(["require"], function (require) {
         // Toggle on/off spelling checking on for markdown and heading cells
         // toggle it!
         var spelling_mode = (require("notebook/js/textcell").MarkdownCell.options_default.cm_config.mode == document.original_markdown_mode);
-        $('#toggle_spell_check').toggleClass('active', spelling_mode);
+        var btn = $('#toggle_spell_check');
+        btn.toggleClass('active', !btn.hasClass('active'));
+        //btn.toggleClass('active', spelling_mode);
+
         //console.log(spelling_mode);
         // Change defaults for new cells:
         require("notebook/js/textcell").MarkdownCell.options_default.cm_config.mode = (spelling_mode ? "spell-check-markdown" : document.original_markdown_mode);
@@ -124,14 +127,19 @@ define(["require"], function (require) {
 
     var add_toolbar_buttons = function () {
         var version = IPython.version.substring(0, 1);
-        IPython.toolbar.add_buttons_group([
-            // select your icon from http://fortawesome.github.io/Font-Awesome/icons
+        Jupyter.toolbar.add_buttons_group([
+            /* select your icon from http://fortawesome.github.io/Font-Awesome/icons
             {
                 'label'   : 'Toggle spell checking on a markdown cell',
                 'icon'    : (version === "2") ? 'icon-check-sign' : 'fa-check-square',
                 'callback': toggle_spell_check,
                 'id'      : 'toggle_spell_check'
-            }
+            }*/
+            Jupyter.actions.register ({
+                help   : 'Toggle spell checking on a markdown cell',
+		icon   : 'fa-check-square',
+		handler : toggle_spell_check
+            }, 'toggle_spell_check')
         ]);
     }
 
