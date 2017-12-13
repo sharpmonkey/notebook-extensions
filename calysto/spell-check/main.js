@@ -10,12 +10,29 @@
 
 define(["require"], function (require) {
 
-    function toggle_spell_check() {
-        // Toggle on/off spelling checking on for markdown and heading cells
-        // toggle it!
-        var spelling_mode = (require("notebook/js/textcell").MarkdownCell.options_default.cm_config.mode == document.original_markdown_mode);
+    var rx_word = new RegExp("[^0-9\!\"\#\$\%\&\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~\ ]");
+    var spellOverlay = {
+        token: function (stream, state) {
+            var ch;
+            if (stream.match(rx_word)) {
+                while ((ch = stream.peek()) != null) {
+                    if (!ch.match(rx_word)) {
+                        break;
+                    }
+                    stream.next();
+                }
+                if (!typo_check(stream.current()))
+                    return "spell-error";
+                return null;
+            }
+            while (stream.next() != null && !stream.match(rx_word, false)) {}
+            return null;
+        }
+    };
+
+    function apply_spell_check() {
+        var spelling_mode = IPython.notebook.config.data.spelling_mode;
         $('#toggle_spell_check').toggleClass('active', spelling_mode);
-        //console.log(spelling_mode);
         // Change defaults for new cells:
         require("notebook/js/textcell").MarkdownCell.options_default.cm_config.mode = (spelling_mode ? "spell-check-markdown" : document.original_markdown_mode);
         if (document.original_heading_mode !== undefined) {
@@ -26,11 +43,24 @@ define(["require"], function (require) {
         for (var i = 0; i < cells.length; i++) {
             var cell = cells[i];
             if (cell.cell_type == "markdown") {
-                IPython.notebook.get_cell(i).code_mirror.setOption('mode', (spelling_mode ? "spell-check-markdown" : document.original_markdown_mode));
+                cell.code_mirror.setOption('mode', (spelling_mode ? "spell-check-markdown" : document.original_markdown_mode));
             } else if (cell.cell_type == "heading") {
-                IPython.notebook.get_cell(i).code_mirror.setOption('mode', (spelling_mode ? "spell-check-heading" : document.original_heading_mode));
+                cell.code_mirror.setOption('mode', (spelling_mode ? "spell-check-heading" : document.original_heading_mode));
+            } else if(cell.cell_type == "code") {
+                cell.code_mirror.removeOverlay(spellOverlay);
+                if(spelling_mode) {
+                    cell.code_mirror.addOverlay(spellOverlay);
+                }
             }
         }
+    }
+
+    function toggle_spell_check() {
+        // Toggle on/off spelling checking on for markdown, heading and code cells
+        // toggle it!
+        IPython.notebook.config.data.spelling_mode = !(IPython.notebook.config.data.spelling_mode == true);
+
+        apply_spell_check();
     }
 
     var load_css = function () {
@@ -69,25 +99,7 @@ define(["require"], function (require) {
                 // Here, "spell-error" is defined in the associated CSS file
 
                 // rx_word defines characters not in words. Everything except single quote.
-                var rx_word = new RegExp("[^\!\"\#\$\%\&\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~\ ]");
-                var spellOverlay = {
-                    token: function (stream, state) {
-                        var ch;
-                        if (stream.match(rx_word)) {
-                            while ((ch = stream.peek()) != null) {
-                                if (!ch.match(rx_word)) {
-                                    break;
-                                }
-                                stream.next();
-                            }
-                            if (!typo_check(stream.current()))
-                                return "spell-error";
-                            return null;
-                        }
-                        while (stream.next() != null && !stream.match(rx_word, false)) {}
-                        return null;
-                    }
-                };
+                
                 // Put this overlay on top of mode.
                 // opaque: true allows the styles (spell-check and markdown) to be combined.
                 return CodeMirror.overlayMode(CodeMirror.getMode(config, mode), spellOverlay, {"opaque": true});
@@ -112,6 +124,7 @@ define(["require"], function (require) {
                                             "dictionaryPath": dict_path});
         });
 
+        
         // Put a button on the toolbar:
         if (!IPython.toolbar) {
             $([IPython.events]).on("app_initialized.NotebookApp",
@@ -120,6 +133,12 @@ define(["require"], function (require) {
         } else {
             add_toolbar_buttons();
         }
+
+        require(['base/js/events'], function(events) { 
+            events.on("create.Cell", function() { 
+                apply_spell_check(); 
+            });
+        });
     };
 
     var add_toolbar_buttons = function () {
